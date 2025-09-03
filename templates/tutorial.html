@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taekwondo Tutorial - Practice</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #FF416C, #FF4B2B);
+            --dark-bg: #000000;
+            --card-bg: rgba(26, 26, 26, 0.95);
+            --text-light: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            min-height: 100vh;
+        }
+
+        /* Button Styles */
+        .nav-btn {
+            margin: 0.5rem;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        #skipBtn {
+            background: linear-gradient(90deg, #FFB347, #FFCC33);
+            border: none;
+            color: #000;
+        }
+
+        #skipBtn:hover {
+            background: linear-gradient(90deg, #FFCC33, #FFB347);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 204, 51, 0.3);
+        }
+
+        /* Tutorial Sections */
+        .tutorial-section {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .tutorial-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .tutorial-section h2 {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Video Containers */
+        .video-feed-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #video-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        .pose-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(135deg, rgba(255, 65, 108, 0.1), rgba(255, 75, 43, 0.1));
+        }
+
+        #current-pose {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+        }
+
+        #tutorial-video {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Progress Info */
+        .progress-info {
+            margin-top: 2rem;
+        }
+
+        .badge.bg-primary {
+            background: var(--primary-gradient) !important;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 50px;
+        }
+
+        /* Success Message */
+        #success-message {
+            background: linear-gradient(135deg, rgba(40, 200, 100, 0.1), rgba(40, 200, 100, 0.2));
+            border: none;
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 15px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-btn {
+                margin: 0.25rem;
+                width: calc(100% - 0.5rem);
+            }
+            .video-feed-container, .pose-container {
+                padding-top: 100%; /* Square aspect ratio on mobile */
+            }
+        }
+
+         /* Navbar */
+    .navbar {
+      background: rgba(0,0,0,0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar-brand img {
+      height: 40px;
+      margin-right: .5rem;
+    }
+
+    .nav-link {
+      position: relative;
+      font-weight: 500;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #FF416C, #FF4B2B);
+      transition: all .3s ease;
+      transform: translateX(-50%);
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <img src="/static/assets/logo.png" alt="Logo"> Taekwondo Hub
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" 
+                           href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'tutorial' %}active{% endif %}" 
+                           href="{{ url_for('tutorial') }}">Tutorial</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Main Content -->
+    <div class="container py-5 mt-5">
+        <header class="text-center mb-5">
+            <h1 class="display-4 mb-4" style="background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Taekwondo Tutorial
+            </h1>
+            <nav class="d-flex flex-wrap justify-content-center gap-2">
+                <button id="startBtn" class="nav-btn btn btn-primary">
+                    <i class="bi bi-play-fill me-2"></i>Start Tutorial
+                </button>
+                <button id="restartBtn" class="nav-btn btn btn-secondary">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>Restart
+                </button>
+                <button id="skipBtn" class="nav-btn btn btn-warning" style="display: none;">
+                    <i class="bi bi-skip-forward-fill me-2"></i>Skip Pose
+                </button>
+                <a href="{{ url_for('index') }}" class="nav-btn btn btn-outline-light">
+                    <i class="bi bi-house-door-fill me-2"></i>Home
+                </a>
+            </nav>
+        </header>
+
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-12 col-lg-6">
+                <div class="tutorial-section">
+                    <h2 class="h4 mb-3">Tutorial Video</h2>
+                    <video id="tutorial-video" class="w-100 mb-3" style="display: none;">
+                        <source src="" type="video/mp4">
+                    </video>
+                    <div id="webcam-container" style="display: none;">
+                        <h2 class="h4 mb-3">Your Practice</h2>
+                        <div class="video-feed-container">
+                            <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Live video feed" class="rounded">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-12 col-lg-6">
+                <div class="tutorial-section">
+                    <h2 class="h4 mb-3">Target Pose</h2>
+                    <div class="pose-container mb-3">
+                        <img id="current-pose" src="" alt="Current pose to match" class="rounded">
+                    </div>
+                    <div class="progress-info text-center mb-3">
+                        <p class="h5">Progress: <span id="current-progress" class="badge bg-primary">0/22</span></p>
+                    </div>
+                    <div id="success-message" style="display: none;" class="alert alert-success text-center">
+                        <h3 class="h5">Congratulations!</h3>
+                        <p class="mb-0">You've completed the tutorial successfully!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio element for success sound -->
+    <audio id="success-sound" preload="auto">
+        <source src="{{ url_for('static', filename='audio/audio.wav') }}" type="audio/wav">
+    </audio>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentVideoIndex = 0;
+        const totalVideos = 22;
+        let poseMatched = false;
+        
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const tutorialVideo = document.getElementById('tutorial-video');
+            const webcamContainer = document.getElementById('webcam-container');
+            const currentPose = document.getElementById('current-pose');
+            const startBtn = document.getElementById('startBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const skipBtn = document.getElementById('skipBtn');
+            const successSound = document.getElementById('success-sound');
+            
+            startBtn.addEventListener('click', startTutorial);
+            restartBtn.addEventListener('click', restartTutorial);
+            skipBtn.addEventListener('click', () => {
+                if (!skipBtn.disabled) {
+                    skipBtn.disabled = true;  // Prevent double-clicking
+                    skipCurrentPose();
+                    // Re-enable after a short delay
+                    setTimeout(() => {
+                        skipBtn.disabled = false;
+                    }, 1000);
+                }
+            });
+
+            // Initialize audio (needed for some browsers)
+            function initAudio() {
+                successSound.load();
+                // Create and play a silent audio context to enable audio
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const silence = audioContext.createBuffer(1, 1, 22050);
+                const source = audioContext.createBufferSource();
+                source.buffer = silence;
+                source.connect(audioContext.destination);
+                source.start();
+            }
+
+            function startTutorial() {
+                console.log('Starting tutorial...');
+                currentVideoIndex = 0;
+                document.getElementById('success-message').style.display = 'none';
+                currentPose.style.display = 'none';
+                skipBtn.style.display = 'inline-block';
+                initAudio();  // Initialize audio system
+                playNextVideo();
+            }
+
+            function restartTutorial() {
+                console.log('Restarting tutorial...');
+                currentVideoIndex = 0;
+                document.getElementById('success-message').style.display = 'none';
+                tutorialVideo.style.display = 'none';
+                webcamContainer.style.display = 'none';
+                currentPose.style.display = 'none';
+                skipBtn.style.display = 'inline-block';
+                playNextVideo();
+            }
+
+            function skipCurrentPose() {
+                console.log('Skipping current pose:', currentVideoIndex + 1);
+                
+                // Clear any existing pose detection interval
+                if (window._poseCheckInterval) {
+                    clearInterval(window._poseCheckInterval);
+                }
+                
+                // Update server's pose index before moving to next pose
+                fetch(`/update_pose_index/${currentVideoIndex}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Move to next pose regardless of server response
+                        currentVideoIndex++;
+                        
+                        // Hide current displays
+                        tutorialVideo.style.display = 'none';
+                        webcamContainer.style.display = 'none';
+                        currentPose.style.display = 'none';
+                        
+                        if (currentVideoIndex >= totalVideos) {
+                            showSuccessMessage();
+                            skipBtn.style.display = 'none';
+                        } else {
+                            // Small delay before playing next video for smooth transition
+                            setTimeout(() => {
+                                playNextVideo();
+                            }, 300);
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Error updating pose index:', error);
+                        // Continue with skip even if server update fails
+                        currentVideoIndex++;
+                        if (currentVideoIndex >= totalVideos) {
+                            showSuccessMessage();
+                            skipBtn.style.display = 'none';
+                        } else {
+                            playNextVideo();
+                        }
+                    });
+            }
+
+            function playNextVideo() {
+                if (currentVideoIndex >= totalVideos) {
+                    showSuccessMessage();
+                    return;
+                }
+
+                console.log('Playing video:', currentVideoIndex + 1);
+                poseMatched = false;
+                
+                // Reset video display
+                tutorialVideo.pause();
+                tutorialVideo.currentTime = 0;
+                
+                // Set new video source
+                let videoFileName;
+                if (currentVideoIndex + 1 === 20 || currentVideoIndex + 1 === 21) {
+                    videoFileName = `clip_${currentVideoIndex + 1}(a).mp4`;
+                } else {
+                    videoFileName = `clip_${currentVideoIndex + 1}.mp4`;
+                }
+                
+                const videoUrl = `/static/poses_video/${videoFileName}`;
+                console.log('Loading video:', videoUrl);
+                
+                // Show loading state
+                tutorialVideo.style.display = 'block';
+                webcamContainer.style.display = 'none';
+                currentPose.style.display = 'none';
+                
+                // Set up video
+                tutorialVideo.src = videoUrl;
+                tutorialVideo.playbackRate = 0.5;
+                
+                // Update progress
+                document.getElementById('current-progress').textContent = 
+                    `${currentVideoIndex + 1}/${totalVideos}`;
+
+                // Video event handlers
+                tutorialVideo.onerror = (e) => {
+                    console.error('Error loading video:', e);
+                };
+                
+                tutorialVideo.oncanplay = () => {
+                    console.log('Video can play:', videoFileName);
+                    tutorialVideo.play().catch(e => console.error('Play failed:', e));
+                };
+
+                tutorialVideo.onended = () => {
+                    console.log('Video ended, showing webcam');
+                    tutorialVideo.style.display = 'none';
+                    webcamContainer.style.display = 'block';
+                    showTargetPose();
+                };
+            }
+
+            function showTargetPose() {
+                console.log('Showing target pose for index:', currentVideoIndex);
+                let imageNumber = (currentVideoIndex + 1).toString().padStart(2, '0');
+                let imageSuffix = (currentVideoIndex + 1 === 20 || currentVideoIndex + 1 === 21) ? 'a' : '';
+                let imageUrl = `/static/poses/P1-${imageNumber}${imageSuffix}.jpg`;
+                
+                // Update the server's current pose index
+                fetch(`/update_pose_index/${currentVideoIndex}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Successfully updated pose index on server');
+                            
+                            // Load the target pose image
+                            console.log('Loading image:', imageUrl);
+                            currentPose.src = imageUrl;
+                            
+                            currentPose.onerror = (e) => {
+                                console.error('Error loading image:', e);
+                            };
+                            
+                            currentPose.onload = () => {
+                                console.log('Image loaded successfully');
+                                currentPose.style.display = 'block';
+                                startPoseDetection();
+                            };
+                        } else {
+                            console.error('Failed to update pose index:', data.error);
+                        }
+                    })
+                    .catch(error => console.error('Error updating pose index:', error));
+            }
+
+            function startPoseDetection() {
+                console.log('Starting pose detection...');
+                // Clear any existing interval
+                if (window._poseCheckInterval) {
+                    clearInterval(window._poseCheckInterval);
+                }
+                
+                window._poseCheckInterval = setInterval(() => {
+                    fetch('/check_pose_match')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.matched && !poseMatched) {
+                                console.log('Pose matched!');
+                                poseMatched = true;
+                                clearInterval(window._poseCheckInterval);
+                                
+                                // Play success sound
+                                try {
+                                    successSound.currentTime = 0; // Reset audio to start
+                                    successSound.play().catch(e => console.error('Audio playback failed:', e));
+                                } catch (e) {
+                                    console.error('Error playing audio:', e);
+                                }
+                                
+                                currentVideoIndex++;
+                                setTimeout(playNextVideo, 1000);
+                            }
+                        })
+                        .catch(error => console.error('Error checking pose match:', error));
+                }, 500);
+            }
+
+            function showSuccessMessage() {
+                console.log('Tutorial completed!');
+                document.getElementById('success-message').style.display = 'block';
+                tutorialVideo.style.display = 'none';
+                webcamContainer.style.display = 'none';
+                currentPose.style.display = 'none';
+                skipBtn.style.display = 'none';
+            }
+        });
+        
+
+        // Update pose every 2 seconds
+        setInterval(updateCurrentPose, 2000);
+        // Initial update
+        document.addEventListener('DOMContentLoaded', updateCurrentPose);
+    </script>
+</body>
+</html>
