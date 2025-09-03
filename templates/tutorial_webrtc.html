@@ -355,10 +355,9 @@
                     // Get user media
                     localStream = await navigator.mediaDevices.getUserMedia({
                         video: {
-                            width: { ideal: 640, max: 640 },
-                            height: { ideal: 480, max: 480 },
-                            facingMode: 'user',
-                            frameRate: { ideal: 30, max: 30 }
+                            width: { ideal: 640 },
+                            height: { ideal: 480 },
+                            facingMode: 'user'
                         },
                         audio: false
                     });
@@ -366,7 +365,7 @@
                     localVideo.srcObject = localStream;
                     console.log('Local camera initialized');
                     
-                    // Create peer connection with simple configuration
+                    // Create peer connection
                     pc = new RTCPeerConnection({
                         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
                     });
@@ -411,7 +410,7 @@
                 }
             }
 
-            // Start pose detection polling with higher frequency for responsiveness
+            // Start pose detection polling
             function startPoseDetection() {
                 if (window._poseCheckInterval) {
                     clearInterval(window._poseCheckInterval);
@@ -441,7 +440,7 @@
                     } catch (error) {
                         console.error('Error checking pose match:', error);
                     }
-                }, 200); // Reduced from 500ms to 200ms for better responsiveness
+                }, 500);
             }
 
             // Initialize audio (needed for some browsers)

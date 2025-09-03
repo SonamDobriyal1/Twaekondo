@@ -2,8 +2,13 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-# Initialize YOLO models
-pose_model = YOLO('yolov8n-pose.pt')  # Load YOLOv8 pose model
+# Initialize YOLO models with optimized settings for speed
+pose_model = YOLO('yolov8n-pose.pt')
+# Set model to evaluation mode and optimize for inference
+pose_model.model.eval()
+# Disable gradient computation for faster inference
+import torch
+torch.set_grad_enabled(False)
 
 def calculate_pose_similarity(landmarks1, landmarks2):
     """Calculate similarity between two poses using landmark coordinates."""
@@ -109,8 +114,15 @@ class PoseDetector:
     def process_frame(self, frame, target_keypoints=None):
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         
-        # Run YOLO pose detection
-        results = self.pose_model(img_rgb)[0]
+        # Run YOLO pose detection with optimized settings for speed
+        results = self.pose_model(
+            img_rgb, 
+            verbose=False,  # Disable verbose output
+            imgsz=320,      # Reduced image size for faster inference (was default 640)
+            device='cpu',   # Specify device explicitly
+            conf=0.5,       # Confidence threshold
+            iou=0.7         # IoU threshold for NMS
+        )[0]
         
         similarity = 0.0
         draw_color = (200, 200, 200)
@@ -203,6 +215,68 @@ class PoseDetector:
 
         return frame, similarity, len(results.keypoints) > 0, self.best_frame
 
+    def draw_pose_overlay(self, frame, keypoints, similarity=0.0):
+        """Draw pose overlay on frame using cached keypoints without full processing."""
+        if keypoints is None or len(keypoints) == 0:
+            return frame
+            
+        # Draw keypoints
+        for kpt in keypoints:
+            x, y = int(kpt[0]), int(kpt[1])
+            cv2.circle(frame, (x, y), 5, (245,117,66), -1)
+            
+        # Draw skeleton connections
+        skeleton = [
+            (5,7), (7,9),   # Left arm
+            (6,8), (8,10),  # Right arm
+            (5,6),          # Shoulders
+            (5,11), (6,12), # Torso
+            (11,13), (13,15), # Left leg
+            (12,14), (14,16)  # Right leg
+        ]
+        
+        for connection in skeleton:
+            if connection[0] < len(keypoints) and connection[1] < len(keypoints):
+                pt1 = tuple(map(int, keypoints[connection[0]][:2]))
+                pt2 = tuple(map(int, keypoints[connection[1]][:2]))
+                cv2.line(frame, pt1, pt2, (245,66,230), 2)
+
+        # Draw similarity information with background
+        text_bg_color = (0, 0, 0)
+        text_color = (255, 255, 255)
+        
+        # Draw similarity score
+        similarity_text = f"Similarity: {similarity:.1f}%"
+        cv2.putText(frame, similarity_text, 
+                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, text_bg_color, 4)
+        cv2.putText(frame, similarity_text, 
+                   (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, text_color, 2)
+        
+        # Draw best score
+        best_text = f"Best: {self.highest_similarity:.1f}%"
+        cv2.putText(frame, best_text, 
+                   (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, text_bg_color, 4)
+        cv2.putText(frame, best_text, 
+                   (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, text_color, 2)
+        
+        # Draw status based on similarity
+        if similarity >= self.similarity_threshold:
+            status = "PERFECT MATCH!"
+            status_color = (0, 255, 0)  # Green
+        elif similarity >= self.similarity_threshold * 0.90:
+            status = "Almost there!"
+            status_color = (0, 255, 255)  # Yellow
+        else:
+            status = "Keep adjusting..."
+            status_color = (0, 0, 255)  # Red
+            
+        cv2.putText(frame, status, 
+                   (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, text_bg_color, 4)
+        cv2.putText(frame, status, 
+                   (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 1, status_color, 2)
+        
+        return frame
+
     def bbox_fall_or_stand(self, bbox):
         """Check if bounding box suggests fall."""
         x1, y1, x2, y2 = bbox
@@ -220,7 +294,14 @@ class PoseDetector:
                 return None
                 
             image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = self.pose_model(image_rgb)[0]
+            results = self.pose_model(
+                image_rgb, 
+                verbose=False,  # Disable verbose output
+                imgsz=640,      # Use larger size for pose loading (accuracy important here)
+                device='cpu',   # Specify device explicitly
+                conf=0.5,       # Confidence threshold
+                iou=0.7         # IoU threshold for NMS
+            )[0]
             
             if results.keypoints is not None and len(results.keypoints) > 0:
                 # Get keypoints of the first person detected
